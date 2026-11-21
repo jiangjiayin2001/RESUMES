@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${LOCAL_DB_URL:jdbc:mysql://127.0.0.1:3307/resume_studio?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${LOCAL_DB_USERNAME:resume_studio}
+    password: ${LOCAL_DB_PASSWORD:}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 3000
+  cache:
+    type: simple
+  data:
+    redis:
+      repositories:
+        enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.session.SessionAutoConfiguration
+  flyway:
+    enabled: false
+    locations: classpath:db/migration
+
+server:
+  forward-headers-strategy: native
+  servlet:
+    session:
+      cookie:
+        secure: false
+
+app:
+  security:
+    login-attempt-store: memory
+
+management:
+  health:
+    redis:
+      enabled: false
+
+

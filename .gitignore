@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.local
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.idea/
+.vscode/
+target/
+.mvn/
+*.iml
+*.png
+!docs/**/*.png
+.local/
+backend/data/
