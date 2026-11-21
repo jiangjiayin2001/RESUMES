@@ -16,19 +16,19 @@
         <span class="course-row__number">{{ String(index + 1).padStart(2, '0') }}</span>
         <label class="field">
           <span class="field__label">课程名称</span>
-          <input v-model.trim="item.name" type="text" maxlength="120" placeholder="例如：数据结构与算法" />
+          <input v-model.trim="item.name" type="text" :maxlength="appConfig.resumeForm?.courseNameMaxLength" placeholder="例如：数据结构与算法" />
         </label>
         <label class="field">
           <span class="field__label">课程类别</span>
-          <input v-model.trim="item.category" type="text" maxlength="80" placeholder="专业核心 / 选修" />
+          <input v-model.trim="item.category" type="text" :maxlength="appConfig.resumeForm?.categoryMaxLength" placeholder="专业核心 / 选修" />
         </label>
         <label class="field field--compact">
           <span class="field__label">学分</span>
-          <input v-model.trim="item.credit" type="text" maxlength="20" placeholder="4" />
+          <input v-model.trim="item.credit" type="text" :maxlength="appConfig.resumeForm?.creditMaxLength" placeholder="4" />
         </label>
         <label class="field field--compact">
           <span class="field__label">成绩</span>
-          <input v-model.trim="item.score" type="text" maxlength="20" placeholder="92" />
+          <input v-model.trim="item.score" type="text" :maxlength="appConfig.resumeForm?.scoreMaxLength" placeholder="92" />
         </label>
         <button class="icon-button icon-button--danger" type="button" aria-label="删除课程" @click="removeItem(index)">
           <Trash2 :size="16" />
@@ -50,8 +50,10 @@
 <script setup lang="ts">
 import { BookOpen, Plus, Trash2 } from 'lucide-vue-next'
 import EditorSection from '@/components/EditorSection.vue'
+import { useAppConfigStore } from '@/stores/app-config'
 import type { ResumeData } from '@/types/resume'
 
+const appConfig = useAppConfigStore()
 const props = defineProps<{
   resume: ResumeData
 }>()
@@ -69,3 +71,5 @@ function removeItem(index: number) {
   props.resume.courses.splice(index, 1)
 }
 </script>
+
+

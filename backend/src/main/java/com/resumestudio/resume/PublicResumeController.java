@@ -1,5 +1,6 @@
 package com.resumestudio.resume;
 
+import com.resumestudio.common.ApiPaths;
 import com.resumestudio.resume.dto.ResumeResponse;
 import com.resumestudio.resume.service.ResumeService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/public")
+@RequestMapping(ApiPaths.PUBLIC_BASE)
 @RequiredArgsConstructor
 public class PublicResumeController {
 
@@ -23,3 +24,4 @@ public class PublicResumeController {
                 .body(resumeService.getPublished());
     }
 }
+

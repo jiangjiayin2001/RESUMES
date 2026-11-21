@@ -26,7 +26,7 @@
 
     <div class="avatar-uploader__copy">
       <strong>个人照片</strong>
-      <p>支持 JPG、PNG、WebP，最大 8 MB。上传完成后点击右上角“保存”生效。</p>
+      <p>{{ uploadHint }}</p>
       <p v-if="errorMessage" class="avatar-uploader__error">{{ errorMessage }}</p>
       <div class="avatar-uploader__actions">
         <button class="button button--soft button--small" type="button" :disabled="uploading" @click="openPicker">
@@ -38,14 +38,14 @@
       </div>
     </div>
 
-    <input ref="fileInput" class="avatar-uploader__input" type="file" accept="image/jpeg,image/png,image/webp" @change="handleChange" />
+    <input ref="fileInput" class="avatar-uploader__input" type="file" :accept="acceptedContentTypes" @change="handleChange" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { LoaderCircle, Upload, UploadCloud } from 'lucide-vue-next'
-import { uploadImage } from '@/api/upload'
+import { fetchImageUploadConfig, uploadImage, type ImageUploadConfig } from '@/api/upload'
 
 const props = defineProps<{
   modelValue: string
@@ -59,6 +59,14 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const uploading = ref(false)
 const dragging = ref(false)
 const errorMessage = ref('')
+const uploadConfig = ref<ImageUploadConfig | null>(null)
+
+const acceptedContentTypes = computed(() => uploadConfig.value?.allowedContentTypes.join(',') ?? '')
+const uploadHint = computed(() => {
+  if (!uploadConfig.value) return '正在读取上传配置…'
+  const formats = uploadConfig.value.allowedFormats.map((format) => format.toUpperCase()).join('、')
+  return `支持 ${formats}，最大 ${formatBytes(uploadConfig.value.maxImageBytes)}。上传完成后点击右上角“保存”生效。`
+})
 
 const previewUrl = computed(() => {
   if (!props.modelValue) return ''
@@ -90,12 +98,17 @@ function handleDrop(event: DragEvent) {
 
 async function processFile(file: File) {
   errorMessage.value = ''
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-    errorMessage.value = '仅支持 JPG、PNG 或 WebP 图片'
+  const config = uploadConfig.value
+  if (!config) {
+    errorMessage.value = '上传配置尚未加载完成'
     return
   }
-  if (file.size > 8 * 1024 * 1024) {
-    errorMessage.value = '图片不能超过 8 MB'
+  if (!config.allowedContentTypes.includes(file.type)) {
+    errorMessage.value = `仅支持 ${config.allowedFormats.map((format) => format.toUpperCase()).join('、')} 图片`
+    return
+  }
+  if (file.size > config.maxImageBytes) {
+    errorMessage.value = `图片不能超过 ${formatBytes(config.maxImageBytes)}`
     return
   }
 
@@ -113,4 +126,17 @@ async function processFile(file: File) {
 function removeImage() {
   emit('update:modelValue', '')
 }
+function formatBytes(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${Math.round(bytes / 1024 / 1024)} MB`
+}
+
+onMounted(async () => {
+  try {
+    uploadConfig.value = await fetchImageUploadConfig()
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : '无法读取上传配置'
+  }
+})
 </script>
+

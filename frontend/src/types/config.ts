@@ -1,0 +1,32 @@
+export interface ResumeFormConfig {
+  titleMaxLength: number
+  fullNameMaxLength: number
+  headlineMaxLength: number
+  emailMaxLength: number
+  phoneMaxLength: number
+  locationMaxLength: number
+  urlMaxLength: number
+  summaryMaxLength: number
+  avatarUrlMaxLength: number
+  itemNameMaxLength: number
+  itemRoleMaxLength: number
+  categoryMaxLength: number
+  dateMaxLength: number
+  descriptionMaxLength: number
+  projectDescriptionMaxLength: number
+  techStackMaxLength: number
+  linkMaxLength: number
+  degreeMaxLength: number
+  gpaMaxLength: number
+  creditMaxLength: number
+  scoreMaxLength: number
+  skillNameMaxLength: number
+  courseNameMaxLength: number
+  maxEducationEntries: number
+  maxCampusEntries: number
+  maxCourseEntries: number
+  maxSkillEntries: number
+  maxProjectEntries: number
+  minSkillLevel: number
+  maxSkillLevel: number
+}

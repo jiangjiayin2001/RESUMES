@@ -245,3 +245,18 @@ pnpm build
 ```
 
 
+
+## 配置管理规范
+
+业务限制和运行参数统一从 `application.yml` / `.env` 读取，不在 Java 业务代码或 Vue 组件中重复写死。
+
+| 配置 | 说明 |
+| --- | --- |
+| `app.security.*` | 登录失败次数、锁定时长、账号和密码长度 |
+| `app.storage.*` | 本地/OSS 存储、上传大小、尺寸、格式和缓存时间 |
+| `app.cache.resume-ttl` | 简历 Redis 缓存时间 |
+| `app.validation.*` | 简历字段最大长度、列表数量和技能等级范围 |
+
+后端使用强类型 `AppProperties` 通过 `@ConfigurationProperties` 绑定配置；前端上传规则通过 `/api/uploads/config` 动态读取，不在组件中重复维护。
+
+API 路径由 `ApiPaths`（后端）和 `API_ROUTES`（前端）统一管理，缓存名称由 `CacheNames` 统一管理。

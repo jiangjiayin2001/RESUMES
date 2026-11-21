@@ -222,11 +222,13 @@ import CoursesEditor from '@/components/editors/CoursesEditor.vue'
 import SkillsEditor from '@/components/editors/SkillsEditor.vue'
 import ProjectsEditor from '@/components/editors/ProjectsEditor.vue'
 import PublishingEditor from '@/components/editors/PublishingEditor.vue'
+import { useAppConfigStore } from '@/stores/app-config'
 import { useAuthStore } from '@/stores/auth'
 import { useResumeStore } from '@/stores/resume'
 import type { SectionKey } from '@/types/resume'
 
 const auth = useAuthStore()
+const appConfig = useAppConfigStore()
 const store = useResumeStore()
 const router = useRouter()
 
@@ -349,6 +351,7 @@ function handleShortcut(event: KeyboardEvent) {
 
 onMounted(() => {
   void loadResume()
+  void appConfig.loadResumeFormConfig()
   window.addEventListener('beforeunload', beforeUnload)
   window.addEventListener('keydown', handleShortcut)
 })
@@ -359,6 +362,9 @@ onBeforeUnmount(() => {
   if (toastTimer) clearTimeout(toastTimer)
 })
 </script>
+
+
+
 
 
 

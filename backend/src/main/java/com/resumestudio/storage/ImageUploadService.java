@@ -1,8 +1,8 @@
 package com.resumestudio.storage;
 
 import com.resumestudio.common.BadRequestException;
+import com.resumestudio.config.properties.AppProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,30 +10,39 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ImageUploadService {
 
     private final ImageStorageService storageService;
-
-    @Value("${app.storage.max-image-bytes:8388608}")
-    private long maxImageBytes;
+    private final AppProperties appProperties;
 
     public StoredImage upload(MultipartFile file) {
+        AppProperties.Storage storage = appProperties.getStorage();
         if (file == null || file.isEmpty()) {
             throw new BadRequestException("请选择要上传的图片");
         }
-        if (file.getSize() > maxImageBytes) {
-            throw new BadRequestException("图片不能超过 " + (maxImageBytes / 1024 / 1024) + " MB");
+        if (file.getSize() > storage.getMaxImageBytes()) {
+            throw new BadRequestException("图片超过配置的大小限制");
         }
 
         try {
             byte[] bytes = file.getBytes();
             ImageFormat format = detect(bytes);
+            Set<String> allowedFormats = storage.getAllowedFormats().stream()
+                    .map(value -> value.toLowerCase(Locale.ROOT))
+                    .collect(Collectors.toUnmodifiableSet());
+            if (!allowedFormats.contains(format.extension())) {
+                throw new BadRequestException("图片格式不在允许范围内");
+            }
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
-            if (image != null && (image.getWidth() > 8000 || image.getHeight() > 8000)) {
-                throw new BadRequestException("图片尺寸过大，请压缩后上传");
+            int maxDimension = storage.getMaxImageDimension();
+            if (image != null && (image.getWidth() > maxDimension || image.getHeight() > maxDimension)) {
+                throw new BadRequestException("图片尺寸超过配置限制");
             }
             return storageService.store(bytes, format.extension(), format.contentType());
         } catch (IOException exception) {
@@ -55,7 +64,7 @@ public class ImageUploadService {
                 && bytes[8] == 'W' && bytes[9] == 'E' && bytes[10] == 'B' && bytes[11] == 'P') {
             return new ImageFormat("webp", "image/webp");
         }
-        throw new BadRequestException("仅支持 JPG、PNG 或 WebP 图片");
+        throw new BadRequestException("不支持的图片格式");
     }
 
     private record ImageFormat(String extension, String contentType) {

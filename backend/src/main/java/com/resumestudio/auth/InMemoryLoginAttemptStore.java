@@ -1,6 +1,7 @@
 package com.resumestudio.auth;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.resumestudio.config.properties.AppProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -9,16 +10,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.security.login-attempt-store", havingValue = "memory")
 public class InMemoryLoginAttemptStore implements LoginAttemptStore {
 
     private final Map<String, Attempt> attempts = new ConcurrentHashMap<>();
-
-    @Value("${app.security.login-max-attempts:5}")
-    private int maxAttempts;
-
-    @Value("${app.security.login-lock-minutes:15}")
-    private int lockMinutes;
+    private final AppProperties appProperties;
 
     @Override
     public void assertAllowed(String username, String clientIp) {
@@ -31,7 +28,7 @@ public class InMemoryLoginAttemptStore implements LoginAttemptStore {
             attempts.remove(key, attempt);
             return;
         }
-        if (attempt.count() >= maxAttempts) {
+        if (attempt.count() >= appProperties.getSecurity().getLoginMaxAttempts()) {
             throw new TooManyLoginAttemptsException("登录尝试次数过多，请稍后再试");
         }
     }
@@ -39,9 +36,10 @@ public class InMemoryLoginAttemptStore implements LoginAttemptStore {
     @Override
     public void recordFailure(String username, String clientIp) {
         String key = key(username, clientIp);
+        long ttlSeconds = appProperties.getSecurity().getLoginLockMinutes() * 60L;
         attempts.compute(key, (ignored, current) -> {
             if (current == null || current.expiresAt().isBefore(Instant.now())) {
-                return new Attempt(1, Instant.now().plusSeconds(lockMinutes * 60L));
+                return new Attempt(1, Instant.now().plusSeconds(ttlSeconds));
             }
             return new Attempt(current.count() + 1, current.expiresAt());
         });
@@ -53,7 +51,8 @@ public class InMemoryLoginAttemptStore implements LoginAttemptStore {
     }
 
     private String key(String username, String clientIp) {
-        return (username == null ? "" : username.toLowerCase()) + "|" + (clientIp == null ? "" : clientIp);
+        return appProperties.getSecurity().getLoginAttemptKeyPrefix()
+                + (username == null ? "" : username.toLowerCase()) + "|" + (clientIp == null ? "" : clientIp);
     }
 
     private record Attempt(int count, Instant expiresAt) {

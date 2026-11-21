@@ -1,4 +1,5 @@
 import { http } from '@/api/http'
+import { API_ROUTES } from '@/config/api-routes'
 import type { AuthUser } from '@/types/resume'
 
 interface LoginRequest {
@@ -7,26 +8,27 @@ interface LoginRequest {
 }
 
 export async function ensureCsrfToken(): Promise<void> {
-  await http.get('/auth/csrf')
+  await http.get(API_ROUTES.AUTH.CSRF)
 }
 
 export async function login(payload: LoginRequest): Promise<AuthUser> {
   await ensureCsrfToken()
-  const { data } = await http.post<AuthUser>('/auth/login', payload)
+  const { data } = await http.post<AuthUser>(API_ROUTES.AUTH.LOGIN, payload)
   return data
 }
 
 export async function currentUser(): Promise<AuthUser> {
-  const { data } = await http.get<AuthUser>('/auth/me')
+  const { data } = await http.get<AuthUser>(API_ROUTES.AUTH.ME)
   return data
 }
 
 export async function logout(): Promise<void> {
   await ensureCsrfToken()
-  await http.post('/auth/logout')
+  await http.post(API_ROUTES.AUTH.LOGOUT)
 }
 
 export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
   await ensureCsrfToken()
-  await http.post('/auth/password', { currentPassword, newPassword })
+  await http.post(API_ROUTES.AUTH.PASSWORD, { currentPassword, newPassword })
 }
+

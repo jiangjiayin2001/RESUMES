@@ -43,26 +43,26 @@
         <div class="form-grid">
           <label class="field">
             <span class="field__label">项目名称</span>
-            <input v-model.trim="item.name" type="text" maxlength="160" placeholder="项目名称" />
+            <input v-model.trim="item.name" type="text" :maxlength="appConfig.resumeForm?.itemNameMaxLength" placeholder="项目名称" />
           </label>
           <label class="field">
             <span class="field__label">担任角色</span>
-            <input v-model.trim="item.role" type="text" maxlength="120" placeholder="例如：核心开发、项目负责人" />
+            <input v-model.trim="item.role" type="text" :maxlength="appConfig.resumeForm?.itemRoleMaxLength" placeholder="例如：核心开发、项目负责人" />
           </label>
           <label class="field">
             <span class="field__label">开始时间</span>
-            <input v-model.trim="item.startDate" type="text" maxlength="20" placeholder="2024.03" />
+            <input v-model.trim="item.startDate" type="text" :maxlength="appConfig.resumeForm?.dateMaxLength" placeholder="2024.03" />
           </label>
           <label class="field">
             <span class="field__label">结束时间</span>
-            <input v-model.trim="item.endDate" type="text" maxlength="20" placeholder="2024.09 / 至今" />
+            <input v-model.trim="item.endDate" type="text" :maxlength="appConfig.resumeForm?.dateMaxLength" placeholder="2024.09 / 至今" />
           </label>
           <label class="field field--full">
             <span class="field__label">技术栈 / 使用工具</span>
             <input
               v-model.trim="item.techStack"
               type="text"
-              maxlength="300"
+              :maxlength="appConfig.resumeForm?.techStackMaxLength"
               placeholder="Java · Spring Boot · MySQL · Redis · Vue 3"
             />
           </label>
@@ -71,7 +71,7 @@
             <textarea
               v-model="item.description"
               rows="4"
-              maxlength="2500"
+              :maxlength="appConfig.resumeForm?.projectDescriptionMaxLength"
               placeholder="说明项目目标、业务背景和你承担的核心工作。"
             ></textarea>
           </label>
@@ -80,13 +80,13 @@
             <textarea
               v-model="item.highlights"
               rows="4"
-              maxlength="2500"
+              :maxlength="appConfig.resumeForm?.projectDescriptionMaxLength"
               placeholder="每行写一条成果，尽量包含指标，例如：接口 P95 延迟由 420ms 降至 90ms。"
             ></textarea>
           </label>
           <label class="field field--full">
             <span class="field__label">项目链接</span>
-            <input v-model.trim="item.link" type="url" maxlength="500" placeholder="https://github.com/..." />
+            <input v-model.trim="item.link" type="url" :maxlength="appConfig.resumeForm?.linkMaxLength" placeholder="https://github.com/..." />
           </label>
         </div>
       </article>
@@ -106,7 +106,10 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowUp, FolderKanban, Plus, Trash2 } from 'lucide-vue-next'
 import EditorSection from '@/components/EditorSection.vue'
+import { useAppConfigStore } from '@/stores/app-config'
 import type { Project, ResumeData } from '@/types/resume'
+
+const appConfig = useAppConfigStore()
 
 const props = defineProps<{
   resume: ResumeData
@@ -136,3 +139,4 @@ function move(index: number, offset: number) {
   props.resume.projects.splice(target, 0, item as Project)
 }
 </script>
+

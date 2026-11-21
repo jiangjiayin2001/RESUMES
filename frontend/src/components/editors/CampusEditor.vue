@@ -43,26 +43,26 @@
         <div class="form-grid">
           <label class="field">
             <span class="field__label">组织 / 社团</span>
-            <input v-model.trim="item.organization" type="text" maxlength="160" placeholder="组织名称" />
+            <input v-model.trim="item.organization" type="text" :maxlength="appConfig.resumeForm?.itemNameMaxLength" placeholder="组织名称" />
           </label>
           <label class="field">
             <span class="field__label">担任角色</span>
-            <input v-model.trim="item.role" type="text" maxlength="120" placeholder="例如：副主席、项目负责人" />
+            <input v-model.trim="item.role" type="text" :maxlength="appConfig.resumeForm?.itemRoleMaxLength" placeholder="例如：副主席、项目负责人" />
           </label>
           <label class="field">
             <span class="field__label">开始时间</span>
-            <input v-model.trim="item.startDate" type="text" maxlength="20" placeholder="2023.09" />
+            <input v-model.trim="item.startDate" type="text" :maxlength="appConfig.resumeForm?.dateMaxLength" placeholder="2023.09" />
           </label>
           <label class="field">
             <span class="field__label">结束时间</span>
-            <input v-model.trim="item.endDate" type="text" maxlength="20" placeholder="2024.06 / 至今" />
+            <input v-model.trim="item.endDate" type="text" :maxlength="appConfig.resumeForm?.dateMaxLength" placeholder="2024.06 / 至今" />
           </label>
           <label class="field field--full">
             <span class="field__label">职责描述</span>
             <textarea
               v-model="item.description"
               rows="4"
-              maxlength="2000"
+              :maxlength="appConfig.resumeForm?.descriptionMaxLength"
               placeholder="说明你负责了什么、如何协作，以及工作规模。"
             ></textarea>
           </label>
@@ -71,7 +71,7 @@
             <textarea
               v-model="item.achievements"
               rows="3"
-              maxlength="2000"
+              :maxlength="appConfig.resumeForm?.descriptionMaxLength"
               placeholder="每行写一条可量化成果，例如：统筹 12 场活动，累计参与 800+ 人。"
             ></textarea>
           </label>
@@ -93,8 +93,10 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowUp, Plus, Trash2, UsersRound } from 'lucide-vue-next'
 import EditorSection from '@/components/EditorSection.vue'
+import { useAppConfigStore } from '@/stores/app-config'
 import type { CampusExperience, ResumeData } from '@/types/resume'
 
+const appConfig = useAppConfigStore()
 const props = defineProps<{
   resume: ResumeData
 }>()
@@ -121,3 +123,4 @@ function move(index: number, offset: number) {
   props.resume.campusExperiences.splice(target, 0, item as CampusExperience)
 }
 </script>
+

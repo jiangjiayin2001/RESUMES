@@ -1,4 +1,5 @@
 import { http } from '@/api/http'
+import { API_ROUTES } from '@/config/api-routes'
 import type { ResumeData } from '@/types/resume'
 
 type ResumePayload = Omit<ResumeData, 'id' | 'updatedAt'>
@@ -28,16 +29,17 @@ function stripServerFields(resume: ResumeData): ResumePayload {
 }
 
 export async function fetchCurrentResume(): Promise<ResumeData> {
-  const { data } = await http.get<ResumeData>('/resumes/current')
+  const { data } = await http.get<ResumeData>(API_ROUTES.RESUMES.CURRENT)
   return data
 }
 
 export async function saveCurrentResume(resume: ResumeData): Promise<ResumeData> {
-  const { data } = await http.put<ResumeData>('/resumes/current', stripServerFields(resume))
+  const { data } = await http.put<ResumeData>(API_ROUTES.RESUMES.CURRENT, stripServerFields(resume))
   return data
 }
 
 export async function fetchPublicResume(): Promise<ResumeData> {
-  const { data } = await http.get<ResumeData>('/public/resume')
+  const { data } = await http.get<ResumeData>(API_ROUTES.RESUMES.PUBLIC)
   return data
 }
+

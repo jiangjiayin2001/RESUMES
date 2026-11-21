@@ -49,11 +49,11 @@
         <div class="form-grid">
           <label class="field">
             <span class="field__label">学校</span>
-            <input v-model.trim="item.school" type="text" maxlength="160" placeholder="学校名称" />
+            <input v-model.trim="item.school" type="text" :maxlength="appConfig.resumeForm?.itemNameMaxLength" placeholder="学校名称" />
           </label>
           <label class="field">
             <span class="field__label">专业</span>
-            <input v-model.trim="item.major" type="text" maxlength="160" placeholder="专业名称" />
+            <input v-model.trim="item.major" type="text" :maxlength="appConfig.resumeForm?.itemNameMaxLength" placeholder="专业名称" />
           </label>
           <label class="field">
             <span class="field__label">学历 / 学位</span>
@@ -64,22 +64,22 @@
           </label>
           <label class="field">
             <span class="field__label">GPA / 排名</span>
-            <input v-model.trim="item.gpa" type="text" maxlength="40" placeholder="例如：3.8 / 4.0，专业前 10%" />
+            <input v-model.trim="item.gpa" type="text" :maxlength="appConfig.resumeForm?.gpaMaxLength" placeholder="例如：3.8 / 4.0，专业前 10%" />
           </label>
           <label class="field">
             <span class="field__label">开始时间</span>
-            <input v-model.trim="item.startDate" type="text" maxlength="20" placeholder="2022.09" />
+            <input v-model.trim="item.startDate" type="text" :maxlength="appConfig.resumeForm?.dateMaxLength" placeholder="2022.09" />
           </label>
           <label class="field">
             <span class="field__label">结束时间</span>
-            <input v-model.trim="item.endDate" type="text" maxlength="20" placeholder="2026.06 / 至今" />
+            <input v-model.trim="item.endDate" type="text" :maxlength="appConfig.resumeForm?.dateMaxLength" placeholder="2026.06 / 至今" />
           </label>
           <label class="field field--full">
             <span class="field__label">教育描述</span>
             <textarea
               v-model="item.description"
               rows="4"
-              maxlength="2000"
+              :maxlength="appConfig.resumeForm?.descriptionMaxLength"
               placeholder="可填写主修方向、荣誉奖项、学术成果或校园角色。"
             ></textarea>
           </label>
@@ -101,8 +101,10 @@
 <script setup lang="ts">
 import { ArrowDown, ArrowUp, GraduationCap, Plus, Trash2 } from 'lucide-vue-next'
 import EditorSection from '@/components/EditorSection.vue'
+import { useAppConfigStore } from '@/stores/app-config'
 import type { Education, ResumeData } from '@/types/resume'
 
+const appConfig = useAppConfigStore()
 const props = defineProps<{
   resume: ResumeData
 }>()
@@ -132,3 +134,4 @@ function move(index: number, offset: number) {
   props.resume.educations.splice(target, 0, item as Education)
 }
 </script>
+

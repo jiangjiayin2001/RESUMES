@@ -1,7 +1,7 @@
 package com.resumestudio.auth;
 
+import com.resumestudio.config.properties.AppProperties;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,17 +18,12 @@ import java.util.HexFormat;
 public class LoginAttemptService implements LoginAttemptStore {
 
     private final StringRedisTemplate redisTemplate;
-
-    @Value("${app.security.login-max-attempts:5}")
-    private int maxAttempts;
-
-    @Value("${app.security.login-lock-minutes:15}")
-    private int lockMinutes;
+    private final AppProperties appProperties;
 
     @Override
     public void assertAllowed(String username, String clientIp) {
         String count = redisTemplate.opsForValue().get(key(username, clientIp));
-        if (count != null && Integer.parseInt(count) >= maxAttempts) {
+        if (count != null && Integer.parseInt(count) >= appProperties.getSecurity().getLoginMaxAttempts()) {
             throw new TooManyLoginAttemptsException("登录尝试次数过多，请稍后再试");
         }
     }
@@ -38,7 +33,7 @@ public class LoginAttemptService implements LoginAttemptStore {
         String key = key(username, clientIp);
         Long attempts = redisTemplate.opsForValue().increment(key);
         if (attempts != null && attempts == 1L) {
-            redisTemplate.expire(key, Duration.ofMinutes(lockMinutes));
+            redisTemplate.expire(key, Duration.ofMinutes(appProperties.getSecurity().getLoginLockMinutes()));
         }
     }
 
@@ -48,7 +43,8 @@ public class LoginAttemptService implements LoginAttemptStore {
     }
 
     private String key(String username, String clientIp) {
-        return "resume-studio:login-attempt:" + sha256((username == null ? "" : username.toLowerCase())
+        return appProperties.getSecurity().getLoginAttemptKeyPrefix()
+                + sha256((username == null ? "" : username.toLowerCase())
                 + "|" + (clientIp == null ? "" : clientIp));
     }
 

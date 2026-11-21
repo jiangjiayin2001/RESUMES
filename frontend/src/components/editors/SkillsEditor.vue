@@ -26,14 +26,14 @@
           <span class="skill-editor-card__index">{{ String(index + 1).padStart(2, '0') }}</span>
           <label class="field">
             <span class="field__label">技能名称</span>
-            <input v-model.trim="item.name" type="text" maxlength="80" placeholder="例如：Java / Spring Boot" />
+            <input v-model.trim="item.name" type="text" :maxlength="appConfig.resumeForm?.skillNameMaxLength" placeholder="例如：Java / Spring Boot" />
           </label>
           <label class="field">
             <span class="field__label">技能分类</span>
             <input
               v-model.trim="item.category"
               type="text"
-              maxlength="80"
+              :maxlength="appConfig.resumeForm?.categoryMaxLength"
               list="skill-category-options"
               placeholder="例如：后端开发"
             />
@@ -77,31 +77,51 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Plus, Sparkles, Trash2 } from 'lucide-vue-next'
 import EditorSection from '@/components/EditorSection.vue'
+import { useAppConfigStore } from '@/stores/app-config'
 import type { ResumeData } from '@/types/resume'
+
+const appConfig = useAppConfigStore()
 
 const props = defineProps<{
   resume: ResumeData
 }>()
 
-const levelOptions = [
-  { value: 1, label: '了解' },
-  { value: 2, label: '基础' },
-  { value: 3, label: '熟练' },
-  { value: 4, label: '精通' },
-  { value: 5, label: '专家' },
-]
+const SKILL_LEVEL_LABELS: Readonly<Record<number, string>> = Object.freeze({
+  1: '了解',
+  2: '基础',
+  3: '熟练',
+  4: '精通',
+  5: '专家',
+})
+
+const levelOptions = computed(() => {
+  const formConfig = appConfig.resumeForm
+  if (!formConfig) return []
+  return Array.from(
+    { length: formConfig.maxSkillLevel - formConfig.minSkillLevel + 1 },
+    (_, index) => {
+      const value = formConfig.minSkillLevel + index
+      return { value, label: SKILL_LEVEL_LABELS[value] ?? String(value) }
+    },
+  )
+})
 
 function levelLabel(level: number): string {
-  return levelOptions.find((option) => option.value === level)?.label ?? '熟练'
+  return levelOptions.value.find((option) => option.value === level)?.label ?? String(level)
 }
 
 function addItem() {
+  const formConfig = appConfig.resumeForm
+  const defaultLevel = formConfig
+    ? Math.round((formConfig.minSkillLevel + formConfig.maxSkillLevel) / 2)
+    : 1
   props.resume.skills.push({
     name: '',
     category: '',
-    level: 3,
+    level: defaultLevel,
   })
 }
 
@@ -109,3 +129,7 @@ function removeItem(index: number) {
   props.resume.skills.splice(index, 1)
 }
 </script>
+
+
+
+

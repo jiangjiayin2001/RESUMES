@@ -17,6 +17,7 @@ import com.resumestudio.resume.mapper.EducationMapper;
 import com.resumestudio.resume.mapper.ProjectMapper;
 import com.resumestudio.resume.mapper.ResumeMapper;
 import com.resumestudio.resume.mapper.SkillMapper;
+import com.resumestudio.common.CacheNames;
 import com.resumestudio.common.ConflictException;
 import com.resumestudio.common.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -40,13 +41,13 @@ public class ResumeService {
     private final SkillMapper skillMapper;
     private final ProjectMapper projectMapper;
 
-    @Cacheable(cacheNames = "resume-current", key = "#userId")
+    @Cacheable(cacheNames = CacheNames.RESUME_CURRENT, key = "#userId")
     @Transactional(readOnly = true)
     public ResumeResponse getCurrent(Long userId) {
         return readResume(userId);
     }
 
-    @Cacheable(cacheNames = "resume-public", key = "'current'")
+    @Cacheable(cacheNames = CacheNames.RESUME_PUBLIC, key = "'current'")
     @Transactional(readOnly = true)
     public ResumeResponse getPublished() {
         ResumeEntity resume = resumeMapper.selectOne(new LambdaQueryWrapper<ResumeEntity>()
@@ -60,8 +61,8 @@ public class ResumeService {
     }
 
     @Caching(evict = {
-            @CacheEvict(cacheNames = "resume-current", key = "#userId"),
-            @CacheEvict(cacheNames = "resume-public", allEntries = true)
+            @CacheEvict(cacheNames = CacheNames.RESUME_CURRENT, key = "#userId"),
+            @CacheEvict(cacheNames = CacheNames.RESUME_PUBLIC, allEntries = true)
     })
     @Transactional
     public ResumeResponse saveCurrent(Long userId, ResumePayload payload) {
@@ -268,5 +269,6 @@ public class ResumeService {
         return value == null ? "" : value.trim();
     }
 }
+
 
 

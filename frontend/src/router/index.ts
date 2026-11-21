@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { PUBLIC_PAGE_ROUTES } from '@/config/api-routes'
 
 const PublicResumeView = () => import('@/views/PublicResumeView.vue')
 
@@ -7,55 +8,55 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/',
+      path: PUBLIC_PAGE_ROUTES.HOME,
       name: 'public-resume',
       component: PublicResumeView,
       meta: { publicPage: 'home' },
     },
     {
-      path: '/education',
+      path: PUBLIC_PAGE_ROUTES.EDUCATION,
       name: 'public-education',
       component: PublicResumeView,
       meta: { publicPage: 'education' },
     },
     {
-      path: '/campus',
+      path: PUBLIC_PAGE_ROUTES.CAMPUS,
       name: 'public-campus',
       component: PublicResumeView,
       meta: { publicPage: 'campus' },
     },
     {
-      path: '/projects',
+      path: PUBLIC_PAGE_ROUTES.PROJECTS,
       name: 'public-projects',
       component: PublicResumeView,
       meta: { publicPage: 'projects' },
     },
     {
-      path: '/skills',
+      path: PUBLIC_PAGE_ROUTES.SKILLS,
       name: 'public-skills',
       component: PublicResumeView,
       meta: { publicPage: 'skills' },
     },
     {
-      path: '/courses',
+      path: PUBLIC_PAGE_ROUTES.COURSES,
       name: 'public-courses',
       component: PublicResumeView,
       meta: { publicPage: 'courses' },
     },
     {
-      path: '/contact',
+      path: PUBLIC_PAGE_ROUTES.CONTACT,
       name: 'public-contact',
       component: PublicResumeView,
       meta: { publicPage: 'contact' },
     },
     {
-      path: '/login',
+      path: PUBLIC_PAGE_ROUTES.LOGIN,
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
       meta: { guestOnly: true },
     },
     {
-      path: '/admin',
+      path: PUBLIC_PAGE_ROUTES.ADMIN,
       name: 'studio',
       component: () => import('@/views/ResumeStudioView.vue'),
       meta: { requiresAuth: true },
@@ -83,3 +84,4 @@ router.beforeEach(async (to) => {
 })
 
 export default router
+
